@@ -35,34 +35,23 @@ public class ImageFilter {
 
 	private void applyStep() {
 		int index;
-		int pixel;
 		for (int i = 1; i < height - 1; i++) {
 			for (int j = 1; j < width - 1; j++) {
 				PixelColor px = new PixelColor();
 				for (int k = i - 1; k <= i + 1; k++) {
-					index = k * width + j - 1;
-					pixel = src[index];
-					calculate(pixel, px);
-
-					index = k * width + j;
-					pixel = src[index];
-					calculate(pixel, px);
-
-					index = k * width + j + 1;
-					pixel = src[index];
-					calculate(pixel, px);
+					applyTransformationForIndex(px, k * width + j - 1);
+					applyTransformationForIndex(px, k * width + j);
+					applyTransformationForIndex(px, k * width + j + 1);
 				}
 				// Re-assemble destination pixel.
 				index = i * width + j;
-				int dpixel = (0xff000000) | (((int) px.rt / 9) << 16) | (((int) px.gt / 9) << 8) | (((int) px.bt / 9));
-				dst[index] = dpixel;
+				dst[index] = px.convertToSingleValue();
 			}
 		}
 	}
 
-	private void calculate(int pixel, PixelColor px) {
-		px.rt += (float) ((pixel & 0x00ff0000) >> 16);
-		px.gt += (float) ((pixel & 0x0000ff00) >> 8);
-		px.bt += (float) ((pixel & 0x000000ff));
+	private void applyTransformationForIndex(PixelColor px, int index) {
+		int pixel = src[index];
+		px.apply(pixel);
 	}
 }
