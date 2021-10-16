@@ -27,6 +27,11 @@ public class TestImageFilter {
 
 		System.out.println("Source image: " + srcFileName);
 
+		startSequentialFilter(srcFileName, image);
+		startParallelFilter(srcFileName, image);
+	}
+
+	private static void startSequentialFilter(String srcFileName, BufferedImage image) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
 		System.out.println("Image size is " + w + "x" + h);
@@ -35,11 +40,6 @@ public class TestImageFilter {
 		int[] src = image.getRGB(0, 0, w, h, null, 0, w);
 		int[] dst = new int[src.length];
 
-		startSequentialFilter(srcFileName, w, h, src, dst);
-		startParallelFilter(srcFileName, w, h, src, dst);
-	}
-
-	private static void startSequentialFilter(String srcFileName, int w, int h, int[] src, int[] dst) throws IOException {
 		System.out.println("Starting sequential image filter.");
 
 		long startTime = System.currentTimeMillis();
@@ -60,7 +60,15 @@ public class TestImageFilter {
 		System.out.println("Output image: " + dstName);
 	}
 
-	private static void startParallelFilter(String srcFileName, int w, int h, int[] src, int[] dst) throws IOException {
+	private static void startParallelFilter(String srcFileName, BufferedImage image) throws IOException {
+		int w = image.getWidth();
+		int h = image.getHeight();
+		System.out.println("Image size is " + w + "x" + h);
+		System.out.println();
+
+		int[] src = image.getRGB(0, 0, w, h, null, 0, w);
+		int[] dst = new int[src.length];
+
 		System.out.println("Starting parallel image filter.");
 
 		long startTime = System.currentTimeMillis();
