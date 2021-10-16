@@ -39,9 +39,10 @@ public class ImageFilter {
 			for (int j = 1; j < width - 1; j++) {
 				PixelColor px = new PixelColor();
 				for (int k = i - 1; k <= i + 1; k++) {
-					applyTransformationForIndex(px, k * width + j - 1);
-					applyTransformationForIndex(px, k * width + j);
-					applyTransformationForIndex(px, k * width + j + 1);
+					int y = yIndex(k);
+					applyTransformationForIndex(px, y + j - 1);
+					applyTransformationForIndex(px, y + j);
+					applyTransformationForIndex(px, y + j + 1);
 				}
 				// Re-assemble destination pixel.
 				index = i * width + j;
@@ -53,5 +54,9 @@ public class ImageFilter {
 	private void applyTransformationForIndex(PixelColor px, int index) {
 		int pixel = src[index];
 		px.apply(pixel);
+	}
+
+	private int yIndex(int row){
+		return row * width;
 	}
 }
