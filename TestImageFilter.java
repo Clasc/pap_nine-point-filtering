@@ -27,11 +27,13 @@ public class TestImageFilter {
 
 		System.out.println("Source image: " + srcFileName);
 
-		startSequentialFilter(srcFileName, image);
-		startParallelFilter(srcFileName, image);
+		int[] seqResult = startSequentialFilter(srcFileName, image);
+		int[] parallelResult = startParallelFilter(srcFileName, image);
+		boolean areEqual = compareResults(seqResult, parallelResult);
+		System.out.println("Are Results the same? " + areEqual);
 	}
 
-	private static void startSequentialFilter(String srcFileName, BufferedImage image) throws IOException {
+	private static int[] startSequentialFilter(String srcFileName, BufferedImage image) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
 		System.out.println("Image size is " + w + "x" + h);
@@ -58,9 +60,10 @@ public class TestImageFilter {
 		ImageIO.write(dstImage, "jpg", dstFile);
 
 		System.out.println("Output image: " + dstName);
+		return dst;
 	}
 
-	private static void startParallelFilter(String srcFileName, BufferedImage image) throws IOException {
+	private static int[] startParallelFilter(String srcFileName, BufferedImage image) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
 		System.out.println("Image size is " + w + "x" + h);
@@ -87,7 +90,23 @@ public class TestImageFilter {
 		ImageIO.write(dstImage, "jpg", dstFile);
 
 		System.out.println("Output image: " + dstName);
+		return dst;
 	}
 
+	private static boolean compareResults(int [] img, int[] img2){
+		System.out.println("Comparing results....");
+
+		if(img.length != img2.length){
+			return false;
+		}
+
+		for (int i = 0; i < img.length ; i++) {
+			if (img[i] != img2[i]) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 
 }
