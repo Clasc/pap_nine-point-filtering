@@ -37,18 +37,23 @@ public class ImageFilter {
 		int index;
 		for (int i = 1; i < height - 1; i++) {
 			for (int j = 1; j < width - 1; j++) {
-				PixelColor px = new PixelColor();
-				for (int k = i - 1; k <= i + 1; k++) {
-					int y = yIndex(k);
-					applyTransformationForIndex(px, y + j - 1);
-					applyTransformationForIndex(px, y + j);
-					applyTransformationForIndex(px, y + j + 1);
-				}
+				PixelColor px = getPixelColor(i, j);
 				// Re-assemble destination pixel.
-				index = i * width + j;
+				index = yIndex(i) + j;
 				dst[index] = px.convertToSingleValue();
 			}
 		}
+	}
+
+	private PixelColor getPixelColor(int i, int j) {
+		PixelColor px = new PixelColor();
+		for (int k = i - 1; k <= i + 1; k++) {
+			int y = yIndex(k);
+			applyTransformationForIndex(px, y + j - 1);
+			applyTransformationForIndex(px, y + j);
+			applyTransformationForIndex(px, y + j + 1);
+		}
+		return px;
 	}
 
 	private void applyTransformationForIndex(PixelColor px, int index) {
