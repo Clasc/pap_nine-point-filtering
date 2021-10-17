@@ -1,12 +1,11 @@
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.ForkJoinPool;
 
 public class ParallelFJImageFilter {
     private int[] src;
     private int[] dst;
     private  int width;
     private int height;
-
+    private ForkJoinPool taskPool = ForkJoinPool.commonPool();
     private final int NRSTEPS = 100;
 
     public ParallelFJImageFilter(int[] src, int[] dst, int w, int h) {
@@ -18,7 +17,8 @@ public class ParallelFJImageFilter {
 
     public void apply(int threads) {
         for (int steps = 0; steps < NRSTEPS; steps++) {
-            applyStep();
+            ProcessBlock task = new ProcessBlock(src, dst, width, height, 1,1, width, height);
+            taskPool.invoke(task);
             swapDestAndSrc();
         }
     }
@@ -28,22 +28,5 @@ public class ParallelFJImageFilter {
         help = src;
         src = dst;
         dst = help;
-    }
-
-    private void applyStep() {
-        int index;
-        for (int i = 1; i < height - 1; i++) {
-            for (int j = 1; j < width - 1; j++) {
-                AvgNeighbours task = new AvgNeighbours(src, width, i, j);
-                int res = task.compute();
-                // Re-assemble destination pixel.
-                index = yIndex(i) + j;
-                dst[index] = res;
-            }
-        }
-    }
-
-    private int yIndex(int row){
-        return row * width;
     }
 }
