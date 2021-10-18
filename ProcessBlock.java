@@ -67,8 +67,6 @@ public class ProcessBlock extends RecursiveAction {
         int secondHalfX = firstHalfX + blockSizeX % 2;
         int secondHalfY = firstHalfY + blockSizeY % 2;
 
-        // split into 4 blocks for tasks
-        // todo: fix rounding error !!!
         subtasks.add(new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX , firstHalfY));
         subtasks.add(new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, firstHalfY));
         subtasks.add(new ProcessBlock(src, dst, width, height, startX , startY + firstHalfY, firstHalfX, secondHalfY));
