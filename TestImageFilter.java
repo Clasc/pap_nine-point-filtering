@@ -27,16 +27,25 @@ public class TestImageFilter {
 
 		System.out.println("Source image: " + srcFileName);
 
-		int[] seqResult = startSequentialFilter(srcFileName, image);
-		int[] parallelResult = startParallelFilter(srcFileName, image, 2);
-		int[] parallelResult4 = startParallelFilter(srcFileName, image, 4);
-		int[] parallelResult16 = startParallelFilter(srcFileName, image, 16);
-		printComparison(parallelResult, seqResult, 2);
-		printComparison(parallelResult4, seqResult, 4);
-		printComparison(parallelResult16, seqResult, 16);
+		int[] seqResult = executeFilter(srcFileName, image);
+		testParallelFilter(srcFileName, image, 2, seqResult);
+		testParallelFilter(srcFileName, image, 4, seqResult);
+		testParallelFilter(srcFileName, image, 8, seqResult);
+		testParallelFilter(srcFileName, image, 16, seqResult);
+		testParallelFilter(srcFileName, image, 32, seqResult);
 	}
 
-	private static int[] startSequentialFilter(String srcFileName, BufferedImage image) throws IOException {
+	private  static void testParallelFilter(String srcFileName, BufferedImage image, int threads, int[] seqResult){
+		try {
+			int[] parallelResult = executeFilter(srcFileName, image, threads);
+			printComparison(parallelResult, seqResult, threads);
+		}catch (IOException e ){
+			System.out.println(e.getStackTrace());
+			System.out.println(e.getMessage());
+		}
+	}
+
+	private static int[] executeFilter(String srcFileName, BufferedImage image) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
 		System.out.println("Image size is " + w + "x" + h);
@@ -66,7 +75,7 @@ public class TestImageFilter {
 		return dst;
 	}
 
-	private static int[] startParallelFilter(String srcFileName, BufferedImage image, int threads) throws IOException {
+	private static int[] executeFilter(String srcFileName, BufferedImage image, int threads) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
 		System.out.println("Image size is " + w + "x" + h);
@@ -101,6 +110,7 @@ public class TestImageFilter {
 		System.out.println("Are Results the same (threads: " + threads+ ")? " + areEqual);
 	}
 
+
 	private static boolean areEqual(int [] img, int[] img2){
 		System.out.println("Comparing results....");
 
@@ -113,8 +123,6 @@ public class TestImageFilter {
 				return false;
 			}
 		}
-
 		return true;
 	}
-
 }
