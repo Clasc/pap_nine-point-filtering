@@ -75,7 +75,7 @@ public class TestImageFilter {
 		int[] src = image.getRGB(0, 0, w, h, null, 0, w);
 		int[] dst = new int[src.length];
 
-		System.out.println("Starting parallel image filter. With" + threads +" threads.");
+		System.out.println("Starting parallel image filter. With " + threads +" threads.");
 
 		long startTime = System.currentTimeMillis();
 		ParallelFJImageFilter filter = new ParallelFJImageFilter(src, dst, w, h);
@@ -97,11 +97,11 @@ public class TestImageFilter {
 	}
 
 	private static  void printComparison(int[] img, int[] img2, int threads){
-		boolean areEqual = compareResults(img, img2);
-		System.out.println("Are Results the same (threads:" + threads+ ")? " + areEqual);
+		boolean areEqual = areEqual(img, img2);
+		System.out.println("Are Results the same (threads: " + threads+ ")? " + areEqual);
 	}
 
-	private static boolean compareResults(int [] img, int[] img2){
+	private static boolean areEqual(int [] img, int[] img2){
 		System.out.println("Comparing results....");
 
 		if(img.length != img2.length){
