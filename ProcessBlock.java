@@ -41,7 +41,7 @@ public class ProcessBlock extends RecursiveAction {
         for (int i = startY; i < startY + blockSizeY - 1; i++) {
             for (int j = startX; j < startX + blockSizeX - 1; j++) {
                 PixelColor px = calculateAvgPixelColor(i, j);
-                index = yIndex(i) + j;
+                index = index(j, i);
                 dst[index] = px.convertToSingleValue();
             }
         }
@@ -50,10 +50,9 @@ public class ProcessBlock extends RecursiveAction {
     private PixelColor calculateAvgPixelColor(int i, int j) {
         PixelColor px = new PixelColor();
         for (int k = i - 1; k <= i + 1; k++) {
-            int y = yIndex(k);
-            applyTransformationForIndex(px, y + j - 1);
-            applyTransformationForIndex(px, y + j);
-            applyTransformationForIndex(px, y + j + 1);
+            applyTransformationForIndex(px, index(j - 1,k ));
+            applyTransformationForIndex(px, index(j,k));
+            applyTransformationForIndex(px, index(j + 1, k));
         }
         return px;
     }
@@ -76,7 +75,7 @@ public class ProcessBlock extends RecursiveAction {
         px.apply(pixel);
     }
 
-    private int yIndex(int row){
-        return row * width;
+    private int index(int x, int y){
+        return y * width + x;
     }
 }

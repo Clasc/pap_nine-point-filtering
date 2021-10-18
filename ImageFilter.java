@@ -10,7 +10,7 @@ public class ImageFilter {
 	private int width;
 	private int height;
 
-	private final int NRSTEPS = 100;  
+	private final int NRSTEPS = 100;
 
 	public ImageFilter(int[] src, int[] dst, int w, int h) {
 		this.src = src;
@@ -39,7 +39,7 @@ public class ImageFilter {
 			for (int j = 1; j < width - 1; j++) {
 				PixelColor px = getPixelColor(i, j);
 				// Re-assemble destination pixel.
-				index = yIndex(i) + j;
+				index = index(j, i);
 				dst[index] = px.convertToSingleValue();
 			}
 		}
@@ -48,10 +48,9 @@ public class ImageFilter {
 	private PixelColor getPixelColor(int i, int j) {
 		PixelColor px = new PixelColor();
 		for (int k = i - 1; k <= i + 1; k++) {
-			int y = yIndex(k);
-			applyTransformationForIndex(px, y + j - 1);
-			applyTransformationForIndex(px, y + j);
-			applyTransformationForIndex(px, y + j + 1);
+			applyTransformationForIndex(px,  index(j - 1, k));
+			applyTransformationForIndex(px, index(j,k));
+			applyTransformationForIndex(px, index(j + 1, k));
 		}
 		return px;
 	}
@@ -61,7 +60,7 @@ public class ImageFilter {
 		px.apply(pixel);
 	}
 
-	private int yIndex(int row){
-		return row * width;
+	private int index(int x, int y){
+		return y * width + x;
 	}
 }
