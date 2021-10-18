@@ -17,10 +17,12 @@ public class MyLogger {
     }
 
     public void log(String line){
+        System.out.println(line);
         logBuffer.add(line + "\n");
     }
 
     public void logLine(){
+        System.out.println();
         logBuffer.add("\n");
     }
 

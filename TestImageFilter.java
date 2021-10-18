@@ -38,7 +38,8 @@ public class TestImageFilter {
 			System.exit(1);
 		}
 
-		System.out.println("Source image: " + srcFileName);
+		logger.log("Source image: " + srcFileName);
+		logger.log("Image size is " + image.getWidth() + "x" + image.getHeight());
 
 		int[] seqResult = executeFilter(srcFileName, image);
 		testParallelFilter(srcFileName, image, 2, seqResult);
@@ -63,7 +64,6 @@ public class TestImageFilter {
 	private static int[] executeFilter(String srcFileName, BufferedImage image) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
-		logger.log("Image size is " + w + "x" + h);
 
 		int[] src = image.getRGB(0, 0, w, h, null, 0, w);
 		int[] dst = new int[src.length];
@@ -93,12 +93,11 @@ public class TestImageFilter {
 	private static int[] executeFilter(String srcFileName, BufferedImage image, int threads) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
-		logger.log("Image size is " + w + "x" + h);
 
 		int[] src = image.getRGB(0, 0, w, h, null, 0, w);
 		int[] dst = new int[src.length];
 
-		logger.log("Starting parallel image filter. With " + threads +" threads.");
+		logger.log("Starting parallel image filter with " + threads +" threads.");
 
 		long startTime = System.currentTimeMillis();
 		ParallelFJImageFilter filter = new ParallelFJImageFilter(src, dst, w, h);
@@ -106,7 +105,7 @@ public class TestImageFilter {
 		long endTime = System.currentTimeMillis();
 
 		long dt = endTime - startTime;
-		logger.log("Parallel image filter took " + dt + " milliseconds.");
+		logger.log("Parallel image filter using " + threads + " threads, took " + dt + " milliseconds.");
 
 		BufferedImage dstImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		dstImage.setRGB(0, 0, w, h, dst, 0, w);
@@ -121,7 +120,7 @@ public class TestImageFilter {
 
 	private static  void printComparison(int[] img, int[] img2, int threads){
 		boolean areEqual = areEqual(img, img2);
-		logger.log("Are Results the same (threads: " + threads+ ")? " + areEqual);
+		logger.log("Result (threads: " + threads+ ") are the same as sequential filter result: " + areEqual);
 	}
 
 
