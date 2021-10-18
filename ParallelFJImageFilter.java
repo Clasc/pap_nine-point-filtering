@@ -17,9 +17,8 @@ public class ParallelFJImageFilter {
 
     public void apply(int threads) {
         taskPool = new ForkJoinPool(threads);
-        System.out.println("Number of threads: " + taskPool.getActiveThreadCount());
         for (int steps = 0; steps < NRSTEPS; steps++) {
-            ProcessBlock task = new ProcessBlock(src, dst, width, height, 1,1, width-1, height-1);
+            ProcessBlock task = new ProcessBlock(src, dst, width, height, 1,1, width - 2, height - 2);
             taskPool.invoke(task);
             swapDestAndSrc();
         }

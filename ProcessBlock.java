@@ -40,9 +40,6 @@ public class ProcessBlock extends RecursiveAction {
         int index;
         for (int i = startY; i < startY + blockSizeY; i++) {
             for (int j = startX; j < startX + blockSizeX; j++) {
-                if(indexOutOfBounds(index(j,i))){
-                    continue;
-                }
                 PixelColor px = calculateAvgPixelColor(i, j);
                 index = index(j, i);
                 dst[index] = px.convertToSingleValue();
