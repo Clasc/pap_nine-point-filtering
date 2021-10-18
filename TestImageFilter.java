@@ -1,14 +1,27 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.IIOException;
 
 import javax.imageio.ImageIO;
 
 public class TestImageFilter {
+	private static MyLogger logger ;
 
 	public static void main(String[] args) throws Exception {
-		
+		String outFile = "out.txt";
+		if (args.length < 2 || args[1] == null || "".equals(args[1])){
+			System.out.println("no out filename provided, taking default: out.txt");
+		} else {
+			outFile = args[1];
+		}
+
+		logger = new MyLogger(outFile);
+
 		BufferedImage image = null;
 		String srcFileName = null;
 		try {
@@ -33,12 +46,14 @@ public class TestImageFilter {
 		testParallelFilter(srcFileName, image, 8, seqResult);
 		testParallelFilter(srcFileName, image, 16, seqResult);
 		testParallelFilter(srcFileName, image, 32, seqResult);
+		logger.writeLog();
 	}
 
 	private  static void testParallelFilter(String srcFileName, BufferedImage image, int threads, int[] seqResult){
 		try {
 			int[] parallelResult = executeFilter(srcFileName, image, threads);
 			printComparison(parallelResult, seqResult, threads);
+			logger.logLine();
 		}catch (IOException e ){
 			System.out.println(e.getStackTrace());
 			System.out.println(e.getMessage());
@@ -48,13 +63,12 @@ public class TestImageFilter {
 	private static int[] executeFilter(String srcFileName, BufferedImage image) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
-		System.out.println("Image size is " + w + "x" + h);
-		System.out.println();
+		logger.log("Image size is " + w + "x" + h);
 
 		int[] src = image.getRGB(0, 0, w, h, null, 0, w);
 		int[] dst = new int[src.length];
 
-		System.out.println("Starting sequential image filter.");
+		logger.log("Starting sequential image filter.");
 
 		long startTime = System.currentTimeMillis();
 		ImageFilter filter = new ImageFilter(src, dst, w, h);
@@ -62,7 +76,7 @@ public class TestImageFilter {
 		long endTime = System.currentTimeMillis();
 
 		long tSequential = endTime - startTime;
-		System.out.println("Sequential image filter took " + tSequential + " milliseconds.");
+		logger.log("Sequential image filter took " + tSequential + " milliseconds.");
 
 		BufferedImage dstImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		dstImage.setRGB(0, 0, w, h, dst, 0, w);
@@ -71,20 +85,20 @@ public class TestImageFilter {
 		File dstFile = new File(dstName);
 		ImageIO.write(dstImage, "jpg", dstFile);
 
-		System.out.println("Output image: " + dstName);
+		logger.log("Output image: " + dstName);
+		logger.logLine();
 		return dst;
 	}
 
 	private static int[] executeFilter(String srcFileName, BufferedImage image, int threads) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
-		System.out.println("Image size is " + w + "x" + h);
-		System.out.println();
+		logger.log("Image size is " + w + "x" + h);
 
 		int[] src = image.getRGB(0, 0, w, h, null, 0, w);
 		int[] dst = new int[src.length];
 
-		System.out.println("Starting parallel image filter. With " + threads +" threads.");
+		logger.log("Starting parallel image filter. With " + threads +" threads.");
 
 		long startTime = System.currentTimeMillis();
 		ParallelFJImageFilter filter = new ParallelFJImageFilter(src, dst, w, h);
@@ -92,7 +106,7 @@ public class TestImageFilter {
 		long endTime = System.currentTimeMillis();
 
 		long dt = endTime - startTime;
-		System.out.println("Parallel image filter took " + dt + " milliseconds.");
+		logger.log("Parallel image filter took " + dt + " milliseconds.");
 
 		BufferedImage dstImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		dstImage.setRGB(0, 0, w, h, dst, 0, w);
@@ -101,18 +115,18 @@ public class TestImageFilter {
 		File dstFile = new File(dstName);
 		ImageIO.write(dstImage, "jpg", dstFile);
 
-		System.out.println("Output image: " + dstName);
+		logger.log("Output image: " + dstName);
 		return dst;
 	}
 
 	private static  void printComparison(int[] img, int[] img2, int threads){
 		boolean areEqual = areEqual(img, img2);
-		System.out.println("Are Results the same (threads: " + threads+ ")? " + areEqual);
+		logger.log("Are Results the same (threads: " + threads+ ")? " + areEqual);
 	}
 
 
 	private static boolean areEqual(int [] img, int[] img2){
-		System.out.println("Comparing results....");
+		logger.log("Comparing results....");
 
 		if(img.length != img2.length){
 			return false;

@@ -21,7 +21,7 @@ public class ProcessBlock extends RecursiveAction {
         width = w;
         height = h;
         startX = x;
-        startY=y;
+        startY = y;
         this.blockSizeX = blockSizeX;
         this.blockSizeY = blockSizeY;
     }
