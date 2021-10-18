@@ -20,47 +20,39 @@ public class ImageFilter {
 	}
 
 	public void apply() {
+		int index, pixel;
 		for (int steps = 0; steps < NRSTEPS; steps++) {
-			applyStep();
-			swapDestAndSrc();
-		}
-	}
+			for (int i = 1; i < height - 1; i++) {
+				for (int j = 1; j < width - 1; j++) {
+					float rt = 0, gt = 0, bt = 0;
+					for (int k = i - 1; k <= i + 1; k++) {
+						index = k * width + j - 1;
+						pixel = src[index];
+						rt += (float) ((pixel & 0x00ff0000) >> 16);
+						gt += (float) ((pixel & 0x0000ff00) >> 8);
+						bt += (float) ((pixel & 0x000000ff));
 
-	private void swapDestAndSrc() {
-		int[] help;
-		help = src;
-		src = dst;
-		dst = help;
-	}
+						index = k * width + j;
+						pixel = src[index];
+						rt += (float) ((pixel & 0x00ff0000) >> 16);
+						gt += (float) ((pixel & 0x0000ff00) >> 8);
+						bt += (float) ((pixel & 0x000000ff));
 
-	private void applyStep() {
-		int index;
-		for (int i = 1; i < height - 1; i++) {
-			for (int j = 1; j < width - 1; j++) {
-				PixelColor px = getPixelColor(i, j);
-				// Re-assemble destination pixel.
-				index = index(j, i);
-				dst[index] = px.convertToSingleValue();
+						index = k * width + j + 1;
+						pixel = src[index];
+						rt += (float) ((pixel & 0x00ff0000) >> 16);
+						gt += (float) ((pixel & 0x0000ff00) >> 8);
+						bt += (float) ((pixel & 0x000000ff));
+					}
+					// Re-assemble destination pixel.
+					index = i * width + j;
+					int dpixel = (0xff000000) | (((int) rt / 9) << 16) | (((int) gt / 9) << 8) | (((int) bt / 9));
+					dst[index] = dpixel;
+				}
 			}
+			// swap references
+			int[] help; help = src; src = dst; dst = help;
 		}
 	}
 
-	private PixelColor getPixelColor(int i, int j) {
-		PixelColor px = new PixelColor();
-		for (int k = i - 1; k <= i + 1; k++) {
-			applyTransformationForIndex(px,  index(j - 1, k));
-			applyTransformationForIndex(px, index(j,k));
-			applyTransformationForIndex(px, index(j + 1, k));
-		}
-		return px;
-	}
-
-	private void applyTransformationForIndex(PixelColor px, int index) {
-		int pixel = src[index];
-		px.apply(pixel);
-	}
-
-	private int index(int x, int y){
-		return y * width + x;
-	}
 }
