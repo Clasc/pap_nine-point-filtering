@@ -1,10 +1,6 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.IIOException;
 
 import javax.imageio.ImageIO;
@@ -13,13 +9,7 @@ public class TestImageFilter {
 	private static MyLogger logger ;
 
 	public static void main(String[] args) throws Exception {
-		String outFile = "out.txt";
-		if (args.length < 2 || args[1] == null || "".equals(args[1])){
-			System.out.println("no out filename provided, taking default: out.txt");
-		} else {
-			outFile = args[1];
-		}
-
+		String outFile = getOutFileName(args);
 		logger = new MyLogger(outFile);
 
 		BufferedImage image = null;
@@ -41,7 +31,7 @@ public class TestImageFilter {
 		logger.log("Source image: " + srcFileName);
 		logger.log("Image size is " + image.getWidth() + "x" + image.getHeight());
 
-		int[] seqResult = executeFilter(srcFileName, image);
+		FilterTestResult  seqResult = executeFilter(srcFileName, image);
 		testParallelFilter(srcFileName, image, 2, seqResult);
 		testParallelFilter(srcFileName, image, 4, seqResult);
 		testParallelFilter(srcFileName, image, 8, seqResult);
@@ -50,9 +40,19 @@ public class TestImageFilter {
 		logger.writeLog();
 	}
 
-	private  static void testParallelFilter(String srcFileName, BufferedImage image, int threads, int[] seqResult){
+	private static String getOutFileName(String[] args) {
+		String outFile = "out.txt";
+		if (args.length < 2 || args[1] == null || "".equals(args[1])){
+			System.out.println("no out filename provided, taking default: out.txt");
+		} else {
+			outFile = args[1];
+		}
+		return outFile;
+	}
+
+	private  static void testParallelFilter(String srcFileName, BufferedImage image, int threads, FilterTestResult seqResult){
 		try {
-			int[] parallelResult = executeFilter(srcFileName, image, threads);
+			FilterTestResult parallelResult = executeFilter(srcFileName, image, threads);
 			printComparison(parallelResult, seqResult, threads);
 			logger.logLine();
 		}catch (IOException e ){
@@ -61,7 +61,7 @@ public class TestImageFilter {
 		}
 	}
 
-	private static int[] executeFilter(String srcFileName, BufferedImage image) throws IOException {
+	private static FilterTestResult executeFilter(String srcFileName, BufferedImage image) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
 
@@ -87,10 +87,10 @@ public class TestImageFilter {
 
 		logger.log("Output image: " + dstName);
 		logger.logLine();
-		return dst;
+		return new FilterTestResult(dst, tSequential);
 	}
 
-	private static int[] executeFilter(String srcFileName, BufferedImage image, int threads) throws IOException {
+	private static FilterTestResult executeFilter(String srcFileName, BufferedImage image, int threads) throws IOException {
 		int w = image.getWidth();
 		int h = image.getHeight();
 
@@ -115,14 +115,16 @@ public class TestImageFilter {
 		ImageIO.write(dstImage, "jpg", dstFile);
 
 		logger.log("Output image: " + dstName);
-		return dst;
+		return new FilterTestResult(dst, dt);
 	}
 
-	private static  void printComparison(int[] img, int[] img2, int threads){
-		boolean areEqual = areEqual(img, img2);
+	private static void printComparison(FilterTestResult out, FilterTestResult input, int threads){
+		boolean areEqual = areEqual(out.dest, input.dest);
 		logger.log("Result (threads: " + threads+ ") are the same as sequential filter result: " + areEqual);
-	}
 
+		double speedUp = calcSpeedUp(input.time, out.time);
+		logger.log("Relative Speedup: " + speedUp);
+	}
 
 	private static boolean areEqual(int [] img, int[] img2){
 		logger.log("Comparing results....");
@@ -137,5 +139,9 @@ public class TestImageFilter {
 			}
 		}
 		return true;
+	}
+
+	private static double calcSpeedUp(long original, long newTime){
+		return ((double)(newTime - original)/(double) original) * -1;
 	}
 }
