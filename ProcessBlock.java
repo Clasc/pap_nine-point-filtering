@@ -50,14 +50,19 @@ public class ProcessBlock extends RecursiveAction {
     private PixelColor calculateAvgPixelColor(int i, int j) {
         PixelColor px = new PixelColor();
         for (int k = i - 1; k <= i + 1; k++) {
-            if(index(j-1,k) < 0 || index(j+1,k) >= src.length) {
-                continue;
-            }
-            applyTransformationForIndex(px, index(j - 1,k ));
-            applyTransformationForIndex(px, index(j,k));
-            applyTransformationForIndex(px, index(j + 1, k));
+            calculateAverage(j, k, px);
         }
         return px;
+    }
+
+    private void calculateAverage(int x, int y, PixelColor px) {
+        if (coordinatesOutOBounds(x -1, y) || coordinatesOutOBounds(x +1, y)){
+            return;
+        }
+
+        applyTransformationForIndex(px, index(x - 1, y));
+        applyTransformationForIndex(px, index(x, y));
+        applyTransformationForIndex(px, index(x + 1, y));
     }
 
     private List<ProcessBlock> createSubtasks() {
@@ -83,7 +88,7 @@ public class ProcessBlock extends RecursiveAction {
         return y * width + x;
     }
 
-    private boolean indexOutOfBounds(int index){
-        return index >= src.length || index < 1 ;
+    private boolean coordinatesOutOBounds(int x, int y){
+        return index(x,y) < 0 || index(x,y)>= src.length;
     }
 }
