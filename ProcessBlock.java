@@ -13,7 +13,7 @@ public class ProcessBlock extends RecursiveAction {
     private int blockSizeX;
     private int blockSizeY;
 
-    private static final int THRESHOLD = 10;
+    private static final int THRESHOLD = 50;
 
     public ProcessBlock(int[] src, int[] dst, int w, int h, int x, int y , int blockSizeX, int blockSizeY) {
         this.src = src;
