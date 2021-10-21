@@ -1,4 +1,6 @@
 out/
 *.jpg
+!IMAGE1.JPG
+!IMAGE2.JPG
 out.txt
 *.txt
