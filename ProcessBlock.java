@@ -12,10 +12,9 @@ public class ProcessBlock extends RecursiveAction {
     private int startY;
     private int blockSizeX;
     private int blockSizeY;
+    private int threshold;
 
-    private static final int THRESHOLD = 50;
-
-    public ProcessBlock(int[] src, int[] dst, int w, int h, int x, int y , int blockSizeX, int blockSizeY) {
+    public ProcessBlock(int[] src, int[] dst, int w, int h, int x, int y , int blockSizeX, int blockSizeY, int threshold) {
         this.src = src;
         this.dst = dst;
         width = w;
@@ -24,11 +23,12 @@ public class ProcessBlock extends RecursiveAction {
         startY = y;
         this.blockSizeX = blockSizeX;
         this.blockSizeY = blockSizeY;
+        this.threshold = threshold;
     }
 
     @Override
     protected void compute() {
-        if (blockSizeY <= THRESHOLD || blockSizeX <= THRESHOLD) {
+        if (blockSizeY <= threshold || blockSizeX <= threshold) {
             setPixelColorInDestination();
             return;
         }
@@ -72,10 +72,10 @@ public class ProcessBlock extends RecursiveAction {
         int secondHalfX = firstHalfX + blockSizeX % 2;
         int secondHalfY = firstHalfY + blockSizeY % 2;
 
-        subtasks.add(new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX , firstHalfY));
-        subtasks.add(new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, firstHalfY));
-        subtasks.add(new ProcessBlock(src, dst, width, height, startX , startY + firstHalfY, firstHalfX, secondHalfY));
-        subtasks.add(new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY + firstHalfY, secondHalfX, secondHalfY));
+        subtasks.add(new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX , firstHalfY, threshold));
+        subtasks.add(new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, firstHalfY, threshold));
+        subtasks.add(new ProcessBlock(src, dst, width, height, startX , startY + firstHalfY, firstHalfX, secondHalfY, threshold));
+        subtasks.add(new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY + firstHalfY, secondHalfX, secondHalfY, threshold));
         return subtasks;
     }
 
