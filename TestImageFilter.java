@@ -124,6 +124,7 @@ public class TestImageFilter {
 
 		double speedUp = calcSpeedUp(input.time, out.time);
 		logger.log("Relative Speedup: " + speedUp);
+		logger.log("parallel efficiency is bigger than 0.7: " + (speedUp >= (0.7 * threads)));
 	}
 
 	private static boolean areEqual(int [] img, int[] img2){
@@ -142,6 +143,7 @@ public class TestImageFilter {
 	}
 
 	private static double calcSpeedUp(long original, long newTime){
-		return ((double)(newTime - original)/(double) original) * -1;
+		return (double)original/(double) newTime;
+
 	}
 }
