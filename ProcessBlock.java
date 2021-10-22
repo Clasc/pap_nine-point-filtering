@@ -25,7 +25,7 @@ public class ProcessBlock extends RecursiveAction {
 
     @Override
     protected void compute() {
-        if (recursions <= 0 || width <= 3 || height <= 3) {
+        if (recursions <= 0 || blockSizeX <= 10 || blockSizeY <= 10) {
             setPixelColorInDestination();
             return;
         }
