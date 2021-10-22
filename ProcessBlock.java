@@ -20,7 +20,7 @@ public class ProcessBlock extends RecursiveAction {
         startY = y;
         this.blockSizeX = blockSizeX;
         this.blockSizeY = blockSizeY;
-        this.threshold = threshold;
+        this.threshold = threshold <= 1 ? 2 : threshold;
     }
 
     @Override
