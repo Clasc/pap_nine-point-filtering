@@ -1,20 +1,18 @@
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
 public class ProcessBlock extends RecursiveAction {
-    private int[] src;
-    private int[] dst;
-    private  int width;
-    private int height;
-    private int startX;
-    private int startY;
-    private int blockSizeX;
-    private int blockSizeY;
-    private int threshold;
+    private final int[] src;
+    private final int[] dst;
+    private final int width;
+    private final int height;
+    private final int startX;
+    private final int startY;
+    private final int blockSizeX;
+    private final int blockSizeY;
+    private final int threshold;
 
-    public ProcessBlock(int[] src, int[] dst, int w, int h, int x, int y , int blockSizeX, int blockSizeY, int threshold) {
+    public ProcessBlock(int[] src, int[] dst, int w, int h, int x, int y, int blockSizeX, int blockSizeY, int threshold) {
         this.src = src;
         this.dst = dst;
         width = w;
@@ -33,7 +31,7 @@ public class ProcessBlock extends RecursiveAction {
             return;
         }
 
-        ForkJoinTask.invokeAll(createSubtasks());
+        separateToSubTasks();
     }
 
     private void setPixelColorInDestination() {
@@ -56,7 +54,7 @@ public class ProcessBlock extends RecursiveAction {
     }
 
     private void calculateAverage(int x, int y, PixelColor px) {
-        if ((x - 1) < 0 || (x + 1) > width){
+        if ((x - 1) < 0 || (x + 1) > width) {
             return;
         }
 
@@ -65,18 +63,18 @@ public class ProcessBlock extends RecursiveAction {
         applyTransformationForIndex(px, index(x + 1, y));
     }
 
-    private List<ProcessBlock> createSubtasks() {
-        List<ProcessBlock> subtasks = new ArrayList<>();
+    private void separateToSubTasks() {
         int firstHalfX = blockSizeX / 2;
         int firstHalfY = blockSizeY / 2;
         int secondHalfX = blockSizeX - firstHalfX;
-        int secondHalfY = blockSizeY - firstHalfY ;
-
-        subtasks.add(new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX , firstHalfY, threshold));
-        subtasks.add(new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, firstHalfY, threshold));
-        subtasks.add(new ProcessBlock(src, dst, width, height, startX , startY + firstHalfY, firstHalfX, secondHalfY, threshold));
-        subtasks.add(new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY + firstHalfY, secondHalfX, secondHalfY, threshold));
-        return subtasks;
+        int secondHalfY = blockSizeY - firstHalfY;
+        ForkJoinTask.invokeAll(
+                new ProcessBlock[]{
+                        new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX, firstHalfY, threshold),
+                        new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, firstHalfY, threshold),
+                        new ProcessBlock(src, dst, width, height, startX, startY + firstHalfY, firstHalfX, secondHalfY, threshold),
+                        new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY + firstHalfY, secondHalfX, secondHalfY, threshold)
+                });
     }
 
     private void applyTransformationForIndex(PixelColor px, int index) {
@@ -84,7 +82,7 @@ public class ProcessBlock extends RecursiveAction {
         px.apply(pixel);
     }
 
-    private int index(int x, int y){
+    private int index(int x, int y) {
         return y * width + x;
     }
 }
