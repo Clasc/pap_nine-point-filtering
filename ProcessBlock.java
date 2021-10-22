@@ -1,4 +1,3 @@
-import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
 public class ProcessBlock extends RecursiveAction {
@@ -68,7 +67,7 @@ public class ProcessBlock extends RecursiveAction {
         int firstHalfY = blockSizeY / 2;
         int secondHalfX = blockSizeX - firstHalfX;
         int secondHalfY = blockSizeY - firstHalfY;
-        ForkJoinTask.invokeAll(
+        invokeAll(
                 new ProcessBlock[]{
                         new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX, firstHalfY, threshold),
                         new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, firstHalfY, threshold),

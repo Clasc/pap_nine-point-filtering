@@ -1,7 +1,7 @@
 import java.util.concurrent.ForkJoinPool;
 
 public class ParallelFJImageFilter {
-    private static final int MAX_TASKS_PER_THREAD = 80;
+    private static final int MAX_TASKS_PER_THREAD = 5;
     private final int NRSTEPS = 100;
 
     private final int width;
@@ -18,9 +18,10 @@ public class ParallelFJImageFilter {
     }
 
     public void apply(int threads) {
+        int threshold = calculateThreshold(threads);
         taskPool = new ForkJoinPool(threads);
         for (int steps = 0; steps < NRSTEPS; steps++) {
-            ProcessBlock task = new ProcessBlock(src, dst, width, height, 1, 1, width - 2, height - 2, calculateThreshold(threads));
+            ProcessBlock task = new ProcessBlock(src, dst, width, height, 1, 1, width - 2, height - 2, threshold);
             taskPool.invoke(task);
             swapDestAndSrc();
         }
@@ -34,6 +35,6 @@ public class ParallelFJImageFilter {
     }
 
     private int calculateThreshold(int threads) {
-        return ((width + height) / 2) / (threads * MAX_TASKS_PER_THREAD);
+        return ((width + height) / 2) / (threads * threads * MAX_TASKS_PER_THREAD);
     }
 }
