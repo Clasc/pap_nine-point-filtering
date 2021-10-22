@@ -9,9 +9,9 @@ public class ProcessBlock extends RecursiveAction {
     private final int startY;
     private final int blockSizeX;
     private final int blockSizeY;
-    private final int threshold;
+    private long recursions;
 
-    public ProcessBlock(int[] src, int[] dst, int w, int h, int x, int y, int blockSizeX, int blockSizeY, int threshold) {
+    public ProcessBlock(int[] src, int[] dst, int w, int h, int x, int y, int blockSizeX, int blockSizeY, long recursions) {
         this.src = src;
         this.dst = dst;
         width = w;
@@ -20,12 +20,12 @@ public class ProcessBlock extends RecursiveAction {
         startY = y;
         this.blockSizeX = blockSizeX;
         this.blockSizeY = blockSizeY;
-        this.threshold = threshold <= 1 ? 2 : threshold;
+        this.recursions = recursions;
     }
 
     @Override
     protected void compute() {
-        if (blockSizeY <= threshold || blockSizeX <= threshold) {
+        if (recursions <= 0) {
             setPixelColorInDestination();
             return;
         }
@@ -67,12 +67,14 @@ public class ProcessBlock extends RecursiveAction {
         int firstHalfY = blockSizeY / 2;
         int secondHalfX = blockSizeX - firstHalfX;
         int secondHalfY = blockSizeY - firstHalfY;
+        recursions--;
+
         invokeAll(
                 new ProcessBlock[]{
-                        new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX, firstHalfY, threshold),
-                        new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, firstHalfY, threshold),
-                        new ProcessBlock(src, dst, width, height, startX, startY + firstHalfY, firstHalfX, secondHalfY, threshold),
-                        new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY + firstHalfY, secondHalfX, secondHalfY, threshold)
+                        new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX, firstHalfY, recursions),
+                        new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, firstHalfY, recursions),
+                        new ProcessBlock(src, dst, width, height, startX, startY + firstHalfY, firstHalfX, secondHalfY, recursions),
+                        new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY + firstHalfY, secondHalfX, secondHalfY, recursions)
                 });
     }
 
