@@ -7,7 +7,7 @@ public class ParallelFJImageFilter {
     private int height;
     private ForkJoinPool taskPool;
     private final int NRSTEPS = 100;
-    private static int TASKS_PER_THREAD = 50;
+    private static int MAX_TASKS_PER_THREAD = 3;
 
     public ParallelFJImageFilter(int[] src, int[] dst, int w, int h) {
         this.src = src;
@@ -33,6 +33,6 @@ public class ParallelFJImageFilter {
     }
 
     private int calculateThreshold(int threads){
-        return ((width + height) / 2 ) / (threads * TASKS_PER_THREAD);
+        return ((width + height) / 2 ) / (threads * MAX_TASKS_PER_THREAD);
     }
 }
