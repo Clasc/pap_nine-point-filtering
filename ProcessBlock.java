@@ -47,16 +47,16 @@ public class ProcessBlock extends RecursiveAction {
         }
     }
 
-    private PixelColor calculateAvgPixelColor(int i, int j) {
+    private PixelColor calculateAvgPixelColor(int y, int x) {
         PixelColor px = new PixelColor();
-        for (int k = i - 1; k <= i + 1; k++) {
-            calculateAverage(j, k, px);
+        for (int k = y - 1; k <= y + 1; k++) {
+            calculateAverage(x, k, px);
         }
         return px;
     }
 
     private void calculateAverage(int x, int y, PixelColor px) {
-        if (coordinatesOutOBounds(x -1, y) || coordinatesOutOBounds(x +1, y)){
+        if ((x - 1) < 0 || (x + 1) > width){
             return;
         }
 
@@ -69,8 +69,8 @@ public class ProcessBlock extends RecursiveAction {
         List<ProcessBlock> subtasks = new ArrayList<>();
         int firstHalfX = blockSizeX / 2;
         int firstHalfY = blockSizeY / 2;
-        int secondHalfX = firstHalfX + blockSizeX % 2;
-        int secondHalfY = firstHalfY + blockSizeY % 2;
+        int secondHalfX = blockSizeX - firstHalfX;
+        int secondHalfY = blockSizeY - firstHalfY ;
 
         subtasks.add(new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX , firstHalfY, threshold));
         subtasks.add(new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, firstHalfY, threshold));
@@ -86,9 +86,5 @@ public class ProcessBlock extends RecursiveAction {
 
     private int index(int x, int y){
         return y * width + x;
-    }
-
-    private boolean coordinatesOutOBounds(int x, int y){
-        return index(x,y) < 0 || index(x,y)>= src.length;
     }
 }
