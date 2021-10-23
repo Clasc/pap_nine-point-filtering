@@ -1,15 +1,9 @@
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
 
 public class ParallelFJImageFilter {
-    /**
-     * The maximal number of allowed recursions.
-     * Be careful setting this too high will take very long in execution
-     * For every recursion there will be 4 new tasks.
-     * So for 5 recursions there will be 4^4 = 1024 tasks.
-     */
-    private static final int MAX_RECURSIONS = 5;
     private static final int NRSTEPS = 100;
-
+    private static final int THRESHOLD = 1000;
     private final int width;
     private final int height;
     private int[] src;
@@ -24,10 +18,9 @@ public class ParallelFJImageFilter {
     }
 
     public void apply(int threads) {
-        int recursions = recursions(threads);
         taskPool = new ForkJoinPool(threads);
         for (int steps = 0; steps < NRSTEPS; steps++) {
-            ProcessBlock task = new ProcessBlock(src, dst, width, height, 1, 1, width - 2, height - 2, recursions);
+            ProcessBlock task = new ProcessBlock(1, 1, width - 2, height - 2);
             taskPool.invoke(task);
             swapDestAndSrc();
         }
@@ -40,7 +33,77 @@ public class ParallelFJImageFilter {
         dst = help;
     }
 
-    private int recursions(int threads) {
-        return Math.min(threads, MAX_RECURSIONS);
+    public class ProcessBlock extends RecursiveAction {
+        private final int startX;
+        private final int startY;
+        private final int blockSizeX;
+        private final int blockSizeY;
+
+        public ProcessBlock(int x, int y, int blockSizeX, int blockSizeY) {
+            startX = x;
+            startY = y;
+            this.blockSizeX = blockSizeX;
+            this.blockSizeY = blockSizeY;
+        }
+
+        @Override
+        protected void compute() {
+            if (blockSizeX <= THRESHOLD || blockSizeY <= THRESHOLD) {
+                setPixelColorInDestination();
+                return;
+            }
+
+            separateToSubTasks();
+        }
+
+        private void setPixelColorInDestination() {
+            int pixel;
+            for (int y = startY; y < startY + blockSizeY; y++) {
+                for (int x = startX; x < startX + blockSizeX; x++) {
+                    float rt = 0, gt = 0, bt = 0;
+                    for (int k = y - 1; k <= y + 1; k++) {
+                        if ((x - 1) < 0 || (x + 1) > width) {
+                            continue;
+                        }
+
+                        pixel = src[index(x - 1, k)];
+                        rt += (float) ((pixel & 0x00ff0000) >> 16);
+                        gt += (float) ((pixel & 0x0000ff00) >> 8);
+                        bt += (float) ((pixel & 0x000000ff));
+
+                        pixel = src[index(x, k)];
+                        rt += (float) ((pixel & 0x00ff0000) >> 16);
+                        gt += (float) ((pixel & 0x0000ff00) >> 8);
+                        bt += (float) ((pixel & 0x000000ff));
+
+                        pixel = src[index(x + 1, k)];
+                        rt += (float) ((pixel & 0x00ff0000) >> 16);
+                        gt += (float) ((pixel & 0x0000ff00) >> 8);
+                        bt += (float) ((pixel & 0x000000ff));
+                    }
+                    dst[index(x, y)] = (0xff000000) | (((int) rt / 9) << 16) | (((int) gt / 9) << 8) | (((int) bt / 9));
+                }
+            }
+        }
+
+        private void separateToSubTasks() {
+            int firstHalfX = blockSizeX / 2;
+            int firstHalfY = blockSizeY / 2;
+            int secondHalfX = blockSizeX - firstHalfX;
+            int secondHalfY = blockSizeY - firstHalfY;
+
+            invokeAll(
+                    new ProcessBlock[]{
+                            new ProcessBlock(startX, startY, firstHalfX, firstHalfY),
+                            new ProcessBlock(startX + firstHalfX, startY, secondHalfX, firstHalfY),
+                            new ProcessBlock(startX, startY + firstHalfY, firstHalfX, secondHalfY),
+                            new ProcessBlock(startX + firstHalfX, startY + firstHalfY, secondHalfX, secondHalfY)
+                    });
+        }
+
+
+        private int index(int x, int y) {
+            return y * width + x;
+        }
     }
 }
