@@ -57,35 +57,31 @@ public class ParallelFJImageFilter {
         }
 
         private void setPixelColorInDestination() {
-            int index, pixel;
-            for (int steps = 0; steps < NRSTEPS; steps++) {
-                for (int i = 1; i < height - 1; i++) {
-                    for (int j = 1; j < width - 1; j++) {
-                        float rt = 0, gt = 0, bt = 0;
-                        for (int k = i - 1; k <= i + 1; k++) {
-                            index = k * width + j - 1;
-                            pixel = src[index];
-                            rt += (float) ((pixel & 0x00ff0000) >> 16);
-                            gt += (float) ((pixel & 0x0000ff00) >> 8);
-                            bt += (float) ((pixel & 0x000000ff));
-
-                            index = k * width + j;
-                            pixel = src[index];
-                            rt += (float) ((pixel & 0x00ff0000) >> 16);
-                            gt += (float) ((pixel & 0x0000ff00) >> 8);
-                            bt += (float) ((pixel & 0x000000ff));
-
-                            index = k * width + j + 1;
-                            pixel = src[index];
-                            rt += (float) ((pixel & 0x00ff0000) >> 16);
-                            gt += (float) ((pixel & 0x0000ff00) >> 8);
-                            bt += (float) ((pixel & 0x000000ff));
+            int pixel;
+            for (int y = startY; y < startY + blockSizeY; y++) {
+                for (int x = startX; x < startX + blockSizeX; x++) {
+                    float rt = 0, gt = 0, bt = 0;
+                    for (int k = y - 1; k <= y + 1; k++) {
+                        if ((x - 1) < 0 || (x + 1) > width) {
+                            continue;
                         }
-                        // Re-assemble destination pixel.
-                        index = i * width + j;
-                        int dpixel = (0xff000000) | (((int) rt / 9) << 16) | (((int) gt / 9) << 8) | (((int) bt / 9));
-                        dst[index] = dpixel;
+
+                        pixel = src[index(x - 1, k)];
+                        rt += (float) ((pixel & 0x00ff0000) >> 16);
+                        gt += (float) ((pixel & 0x0000ff00) >> 8);
+                        bt += (float) ((pixel & 0x000000ff));
+
+                        pixel = src[index(x, k)];
+                        rt += (float) ((pixel & 0x00ff0000) >> 16);
+                        gt += (float) ((pixel & 0x0000ff00) >> 8);
+                        bt += (float) ((pixel & 0x000000ff));
+
+                        pixel = src[index(x + 1, k)];
+                        rt += (float) ((pixel & 0x00ff0000) >> 16);
+                        gt += (float) ((pixel & 0x0000ff00) >> 8);
+                        bt += (float) ((pixel & 0x000000ff));
                     }
+                    dst[index(x, y)] = (0xff000000) | (((int) rt / 9) << 16) | (((int) gt / 9) << 8) | (((int) bt / 9));
                 }
             }
         }
@@ -103,6 +99,11 @@ public class ParallelFJImageFilter {
                             new ProcessBlock(startX, startY + firstHalfY, firstHalfX, secondHalfY),
                             new ProcessBlock(startX + firstHalfX, startY + firstHalfY, secondHalfX, secondHalfY)
                     });
+        }
+
+
+        private int index(int x, int y) {
+            return y * width + x;
         }
     }
 }
