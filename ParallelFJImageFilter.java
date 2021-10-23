@@ -20,7 +20,7 @@ public class ParallelFJImageFilter {
     public void apply(int threads) {
         taskPool = new ForkJoinPool(threads);
         for (int steps = 0; steps < NRSTEPS; steps++) {
-            ProcessBlock task = new ProcessBlock(1, 1, width - 2, height - 2);
+            ProcessBlock task = new ProcessBlock(1, width - 2);
             taskPool.invoke(task);
             swapDestAndSrc();
         }
@@ -35,20 +35,16 @@ public class ParallelFJImageFilter {
 
     public class ProcessBlock extends RecursiveAction {
         private final int startX;
-        private final int startY;
-        private final int blockSizeX;
-        private final int blockSizeY;
+        private final int blockSize;
 
-        public ProcessBlock(int x, int y, int blockSizeX, int blockSizeY) {
+        public ProcessBlock(int x, int blockSize) {
             startX = x;
-            startY = y;
-            this.blockSizeX = blockSizeX;
-            this.blockSizeY = blockSizeY;
+            this.blockSize = blockSize;
         }
 
         @Override
         protected void compute() {
-            if (blockSizeX <= THRESHOLD || blockSizeY <= THRESHOLD) {
+            if (blockSize <= THRESHOLD) {
                 setPixelColorInDestination();
                 return;
             }
@@ -58,8 +54,8 @@ public class ParallelFJImageFilter {
 
         private void setPixelColorInDestination() {
             int pixel;
-            for (int y = startY; y < startY + blockSizeY; y++) {
-                for (int x = startX; x < startX + blockSizeX; x++) {
+            for (int y = 1; y < height - 1; y++) {
+                for (int x = startX; x < startX + blockSize; x++) {
                     float rt = 0, gt = 0, bt = 0;
                     for (int k = y - 1; k <= y + 1; k++) {
                         if ((x - 1) < 0 || (x + 1) > width) {
@@ -87,18 +83,12 @@ public class ParallelFJImageFilter {
         }
 
         private void separateToSubTasks() {
-            int firstHalfX = blockSizeX / 2;
-            int firstHalfY = blockSizeY / 2;
-            int secondHalfX = blockSizeX - firstHalfX;
-            int secondHalfY = blockSizeY - firstHalfY;
+            int firstHalf = blockSize / 2;
 
             invokeAll(
-                    new ProcessBlock[]{
-                            new ProcessBlock(startX, startY, firstHalfX, firstHalfY),
-                            new ProcessBlock(startX + firstHalfX, startY, secondHalfX, firstHalfY),
-                            new ProcessBlock(startX, startY + firstHalfY, firstHalfX, secondHalfY),
-                            new ProcessBlock(startX + firstHalfX, startY + firstHalfY, secondHalfX, secondHalfY)
-                    });
+                    new ProcessBlock(startX, firstHalf),
+                    new ProcessBlock(startX + firstHalf, blockSize - firstHalf)
+            );
         }
 
 
