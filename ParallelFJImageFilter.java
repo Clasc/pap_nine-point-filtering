@@ -3,7 +3,7 @@ import java.util.concurrent.RecursiveAction;
 
 public class ParallelFJImageFilter {
     private static final int NRSTEPS = 100;
-    private static final int THRESHOLD = 100;
+    private static final int THRESHOLD = 10000;
     private final int width;
     private final int height;
     private int[] src;
@@ -44,7 +44,7 @@ public class ParallelFJImageFilter {
 
         @Override
         protected void compute() {
-            if (blockSize <= THRESHOLD) {
+            if (blockSize * height <= THRESHOLD) {
                 setPixelColorInDestination();
                 return;
             }
