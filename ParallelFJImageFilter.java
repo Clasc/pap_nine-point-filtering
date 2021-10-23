@@ -34,6 +34,6 @@ public class ParallelFJImageFilter {
     }
 
     private int recursions(int threads) {
-        return Math.min(threads, 4);
+        return threads;
     }
 }

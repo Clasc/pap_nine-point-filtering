@@ -25,7 +25,7 @@ public class ProcessBlock extends RecursiveAction {
 
     @Override
     protected void compute() {
-        if (recursions <= 0 || blockSizeX <= 10 || blockSizeY <= 10) {
+        if (recursions <= 0 || blockSizeX <= 20) {
             setPixelColorInDestination();
             return;
         }
@@ -64,17 +64,13 @@ public class ProcessBlock extends RecursiveAction {
 
     private void separateToSubTasks() {
         int firstHalfX = blockSizeX / 2;
-        int firstHalfY = blockSizeY / 2;
         int secondHalfX = blockSizeX - firstHalfX;
-        int secondHalfY = blockSizeY - firstHalfY;
         recursions--;
 
         invokeAll(
                 new ProcessBlock[]{
-                        new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX, firstHalfY, recursions),
-                        new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, firstHalfY, recursions),
-                        new ProcessBlock(src, dst, width, height, startX, startY + firstHalfY, firstHalfX, secondHalfY, recursions),
-                        new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY + firstHalfY, secondHalfX, secondHalfY, recursions)
+                        new ProcessBlock(src, dst, width, height, startX, startY, firstHalfX, blockSizeY, recursions),
+                        new ProcessBlock(src, dst, width, height, startX + firstHalfX, startY, secondHalfX, blockSizeY, recursions),
                 });
     }
 
