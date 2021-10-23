@@ -1,7 +1,14 @@
 import java.util.concurrent.ForkJoinPool;
 
 public class ParallelFJImageFilter {
-    private final int NRSTEPS = 100;
+    /**
+     * The maximal number of allowed recursions.
+     * Be careful setting this too high will take very long in execution
+     * For every recursion there will be 4 new tasks.
+     * So for 5 recursions there will be 4^4 = 1024 tasks.
+     */
+    private static final int MAX_RECURSIONS = 5;
+    private static final int NRSTEPS = 100;
 
     private final int width;
     private final int height;
@@ -34,6 +41,6 @@ public class ParallelFJImageFilter {
     }
 
     private int recursions(int threads) {
-        return Math.min(threads, 4);
+        return Math.min(threads, MAX_RECURSIONS);
     }
 }
