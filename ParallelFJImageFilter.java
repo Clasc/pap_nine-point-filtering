@@ -58,14 +58,18 @@ public class ParallelFJImageFilter {
 
         private void setPixelColorInDestination() {
             int pixel;
-            for (int y = startY; y < startY + blockSizeY; y++) {
-                for (int x = startX; x < startX + blockSizeX; x++) {
+            int endX = startX + blockSizeX;
+            int endY = startY + blockSizeY;
+            for (int y = startY; y < endY; y++) {
+                int kBegin = y - 1, kEnd = y + 1;
+                
+                for (int x = startX; x < endX; x++) {
                     float rt = 0, gt = 0, bt = 0;
-                    for (int k = y - 1; k <= y + 1; k++) {
-                        if ((x - 1) < 0 || (x + 1) > width) {
-                            continue;
-                        }
+                    if ((x - 1) < 0 || (x + 1) > width) {
+                        continue;
+                    }
 
+                    for (int k = kBegin; k <= kEnd; k++) {
                         pixel = src[index(x - 1, k)];
                         rt += (float) ((pixel & 0x00ff0000) >> 16);
                         gt += (float) ((pixel & 0x0000ff00) >> 8);
