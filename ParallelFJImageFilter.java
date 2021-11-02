@@ -65,10 +65,6 @@ public class ParallelFJImageFilter {
 
                 for (int x = startX; x < endX; x++) {
                     float rt = 0, gt = 0, bt = 0;
-                    if ((x + 1) > width) {
-                        continue;
-                    }
-
                     for (int k = kBegin; k <= kEnd; k++) {
                         pixel = src[index(x - 1, k)];
                         rt += (float) ((pixel & 0x00ff0000) >> 16);
