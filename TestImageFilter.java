@@ -32,7 +32,7 @@ public class TestImageFilter {
         logger.log("Image size is " + image.getWidth() + "x" + image.getHeight());
 
         FilterTestResult seqResult = executeFilter(srcFileName, image);
-        // testParallelFilter(srcFileName, image, 1, seqResult);
+        testParallelFilter(srcFileName, image, 1, seqResult);
         testParallelFilter(srcFileName, image, 2, seqResult);
         testParallelFilter(srcFileName, image, 4, seqResult);
         testParallelFilter(srcFileName, image, 8, seqResult);
