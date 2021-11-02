@@ -1,0 +1,47 @@
+Source image: IMAGE1.JPG
+Image size is 6000x4000
+Starting sequential image filter.
+Sequential image filter took 87403 milliseconds.
+Output image: FilteredIMAGE1.JPG
+
+Starting parallel image filter with 1 threads.
+Parallel image filter using 1 threads, took 101001 milliseconds.
+Output image: Filtered_Parallel_1threads_IMAGE1.JPG
+Comparing results....
+Parallel Filter Result (1 threads) == Sequential filter result? true
+speedup (0.8653676696270334) > 0.7: true
+
+Starting parallel image filter with 2 threads.
+Parallel image filter using 2 threads, took 50838 milliseconds.
+Output image: Filtered_Parallel_2threads_IMAGE1.JPG
+Comparing results....
+Parallel Filter Result (2 threads) == Sequential filter result? true
+speedup (1.7192454463196822) > 1.4: true
+
+Starting parallel image filter with 4 threads.
+Parallel image filter using 4 threads, took 25052 milliseconds.
+Output image: Filtered_Parallel_4threads_IMAGE1.JPG
+Comparing results....
+Parallel Filter Result (4 threads) == Sequential filter result? true
+speedup (3.4888631646175954) > 2.8: true
+
+Starting parallel image filter with 8 threads.
+Parallel image filter using 8 threads, took 14336 milliseconds.
+Output image: Filtered_Parallel_8threads_IMAGE1.JPG
+Comparing results....
+Parallel Filter Result (8 threads) == Sequential filter result? true
+speedup (6.096749441964286) > 5.6: true
+
+Starting parallel image filter with 16 threads.
+Parallel image filter using 16 threads, took 7544 milliseconds.
+Output image: Filtered_Parallel_16threads_IMAGE1.JPG
+Comparing results....
+Parallel Filter Result (16 threads) == Sequential filter result? true
+speedup (11.585763520678684) > 11.2: true
+
+Starting parallel image filter with 32 threads.
+Parallel image filter using 32 threads, took 6178 milliseconds.
+Output image: Filtered_Parallel_32threads_IMAGE1.JPG
+Comparing results....
+Parallel Filter Result (32 threads) == Sequential filter result? true
+speedup (14.147458724506313) > 22.4: false
