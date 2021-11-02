@@ -121,9 +121,9 @@ public class TestImageFilter {
 
     private static void printComparison(FilterTestResult out, FilterTestResult input, int threads) {
         logger.log("Parallel Filter Result (" + threads + " threads) == Sequential filter result? " + areEqual(out.dest, input.dest));
-        double parallelEff = parallelEff(input.time, out.time);
-        double minVal = 0.7 * threads;
-        logger.log("parallel efficiency (" + parallelEff + ") > " + minVal + ": " + (parallelEff > minVal));
+        double speedup = speedup(input.time, out.time);
+        double minEfficiency = 0.7 * threads;
+        logger.log("speedup (" + speedup + ") > " + minEfficiency + ": " + (speedup > minEfficiency));
     }
 
     private static boolean areEqual(int[] img, int[] img2) {
@@ -141,7 +141,7 @@ public class TestImageFilter {
         return true;
     }
 
-    private static double parallelEff(long original, long newTime) {
+    private static double speedup(long original, long newTime) {
         return (double) original / (double) newTime;
     }
 
