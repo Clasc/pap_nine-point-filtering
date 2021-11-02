@@ -2,7 +2,10 @@ import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestImageFilter {
     private static MyLogger logger;
@@ -143,5 +146,50 @@ public class TestImageFilter {
     private static double calcSpeedUp(long original, long newTime) {
         return (double) original / (double) newTime;
 
+    }
+
+
+    public static class MyLogger {
+        private final List<String> logBuffer;
+        private final String outFile;
+
+        MyLogger(String filename) {
+            logBuffer = new ArrayList<String>();
+            outFile = filename;
+        }
+
+        public List<String> getLog() {
+            return logBuffer;
+        }
+
+        public void log(String line) {
+            System.out.println(line);
+            logBuffer.add(line + "\n");
+        }
+
+        public void logLine() {
+            System.out.println();
+            logBuffer.add("\n");
+        }
+
+        public void writeLog() {
+            try {
+                new File(outFile).createNewFile();
+            } catch (IOException e) {
+                System.out.println("An error occurred creating an output file.");
+                e.printStackTrace();
+            }
+
+            try {
+                FileWriter writer = new FileWriter(outFile);
+                for (String line : logBuffer) {
+                    writer.write(line);
+                }
+                writer.close();
+            } catch (IOException e) {
+                System.out.println("An error occurred when writing the log to file: " + outFile);
+                e.printStackTrace();
+            }
+        }
     }
 }
