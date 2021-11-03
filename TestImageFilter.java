@@ -145,6 +145,15 @@ public class TestImageFilter {
         return (double) original / (double) newTime;
     }
 
+    public static class FilterTestResult {
+        int[] dest;
+        long time;
+
+        FilterTestResult(int[] dest, long time) {
+            this.dest = dest;
+            this.time = time;
+        }
+    }
 
     public static class MyLogger {
         private final List<String> logBuffer;
